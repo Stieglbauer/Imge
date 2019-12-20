@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.XR.WSA;
 
 public class PlayerBehavior : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class PlayerBehavior : MonoBehaviour
     [SerializeField]
     private Animator prop;
     public GameObject text;
+
+    public GameObject marker;
+
+    private Vector3 lowPassValue = Vector3.zero;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,28 +25,12 @@ public class PlayerBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float val = Quaternion.LookRotation(this.transform.rotation * Vector3.forward, Vector3.up).eulerAngles.x;
+
+        Debug.Log(val);
+
+        Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
         text.GetComponent<Text>().text = "" + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
-        shooting = false;
-        if(Input.GetKey(KeyCode.Space))
-        {
-            shooting = true;
-        }
-        setShooting();
-        this.gameObject.GetComponent<PlaneBehavior>().setSpeedX(Input.GetAxis("Horizontal"));
-        //Debug.Log(" returned : " + Input.GetAxis("Horizontal"));
-        this.gameObject.GetComponent<PlaneBehavior>().setSpeedY(Input.GetAxis("Vertical"));
-
-        //changing animation speed of propeller
-        //prop.SetFloat("speed", this.gameObject.GetComponent<PlaneBehavior>().getForwardV()/30);
-
-        if(Input.GetKey(KeyCode.I))
-        {
-            this.gameObject.GetComponent<PlaneBehavior>().setForwardV(this.gameObject.GetComponent<PlaneBehavior>().getForwardV() + 1);
-        }
-        if (Input.GetKey(KeyCode.K))
-        {
-            this.gameObject.GetComponent<PlaneBehavior>().setForwardV(this.gameObject.GetComponent<PlaneBehavior>().getForwardV() - 1);
-        }
 
 
 
@@ -53,10 +42,5 @@ public class PlayerBehavior : MonoBehaviour
 
         //camera.transform.position = Vector3.MoveTowards(camera.transform.position, new Vector3(0.8f, 2.13f, 0), 0.01f);
 
-    }
-
-    public void setShooting()
-    {
-        this.gameObject.GetComponent<PlaneBehavior>().setShooting(this.shooting);
     }
 }

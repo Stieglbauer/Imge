@@ -85,6 +85,10 @@ public class PlaneBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(this.gameObject.tag.Equals("Player"))
+        {
+            //this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 0);
+        }
         //handle steering
         if (crash)
         {
@@ -112,7 +116,7 @@ public class PlaneBehavior : MonoBehaviour
                 crashRot += 0.01f;
             x = crashRot;
         }
-        this.gameObject.transform.Rotate(new Vector3(y*agilityY, 0, -2*x*agilityX), Space.Self);
+        this.gameObject.transform.Rotate(new Vector3(y*agilityY*Time.deltaTime, 0, -x*agilityX*Time.deltaTime), Space.Self);
 
         x = 0;
         y = 0;
@@ -221,5 +225,15 @@ public class PlaneBehavior : MonoBehaviour
     public float getMaxForwardV()
     {
         return this.maxSpeed;
+    }
+
+    public float getAgilityX()
+    {
+        return this.agilityX;
+    }
+
+    public float getAgilityY()
+    {
+        return this.agilityY;
     }
 }
