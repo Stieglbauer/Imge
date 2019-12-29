@@ -25,11 +25,8 @@ public class PlayerBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float val = Quaternion.LookRotation(this.transform.rotation * Vector3.forward, Vector3.up).eulerAngles.x;
 
-        Debug.Log(val);
-
-        Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
+        //Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
         text.GetComponent<Text>().text = "" + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
 
 

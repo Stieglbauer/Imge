@@ -85,7 +85,7 @@ public class PlaneBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(this.gameObject.tag.Equals("Player"))
+        if(this.gameObject.tag.Equals("Plane"))
         {
             //this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 0);
         }
@@ -155,7 +155,8 @@ public class PlaneBehavior : MonoBehaviour
                 }
                 else
                 {
-                    float randa = Random.Range(-2, 2), randb = Random.Range(-2, 2), randc = Random.Range(-2, 2);
+                    float bulletSpread = 1;
+                    float randa = Random.Range(-bulletSpread, bulletSpread), randb = Random.Range(-bulletSpread, bulletSpread), randc = Random.Range(-bulletSpread, bulletSpread);
                     projectileInstance.transform.Rotate(new Vector3(90 + randa, randb, randc), Space.Self);
                 }
                 //projectileInstance.transform.Translate(0, 0, projectile.transform.position.z * mg, Space.Self);

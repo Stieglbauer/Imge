@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
+    [SerializeField]
+    private Texture good;
+    private Fighter[] fighters;
+    public GameObject testDummy1, testDummy2, testDummy3;
     private enum Stance
     {
         IDLE,
@@ -23,6 +27,7 @@ public class AI : MonoBehaviour
         private GameObject target;
         private bool nationality;
         private bool active;
+
 
         public Fighter(GameObject identity, bool nationality)
         {
@@ -62,10 +67,6 @@ public class AI : MonoBehaviour
             this.target = newTarget;
         }
     };
-    [SerializeField]
-    private Texture good;
-    private Fighter[] fighters;
-    public GameObject testDummy1, testDummy2, testDummy3;
     // Start is called before the first frame update
     void Start()
     {
@@ -77,6 +78,7 @@ public class AI : MonoBehaviour
         {
             fighters[i+1] = new Fighter(arr[i], arr[i].GetComponent<Texture>().Equals(good));
         }
+
     }
 
     // Update is called once per frame
@@ -116,11 +118,11 @@ public class AI : MonoBehaviour
         }
         else if (stance == Stance.GAINDISTANCE)
         {
-            gaindistance(plane);
+            gainDistance(plane);
         }
         else if (stance == Stance.SEMITAILORING)
         {
-            semitailoring(plane);
+            semiTailoring(plane);
         }
         else if(stance == Stance.AVOIDCOLLISION)
         {
@@ -132,7 +134,7 @@ public class AI : MonoBehaviour
         }
     }
 
-    private void semitailoring(Fighter plane)
+    private void semiTailoring(Fighter plane)
     {
 
     }
@@ -142,7 +144,7 @@ public class AI : MonoBehaviour
 
     }
 
-    private void gaindistance(Fighter plane)
+    private void gainDistance(Fighter plane)
     {
 
     }
@@ -152,24 +154,29 @@ public class AI : MonoBehaviour
         Quaternion direction = Quaternion.LookRotation(position - plane.getIdentity().transform.position, Vector3.forward);
         float inAim = Quaternion.Angle(direction, Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, Vector3.forward));
 
-
         Quaternion testProbe = plane.getIdentity().transform.rotation * Quaternion.AngleAxis(90, Vector3.forward);
         Quaternion desiredRotation = Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, direction * Vector3.forward);
+
+        testDummy1.transform.rotation = desiredRotation;
+        testDummy2.transform.rotation = direction;
+
         float realDif = Quaternion.Angle(plane.getIdentity().transform.rotation, desiredRotation);
         float probeDif = Quaternion.Angle(testProbe, desiredRotation);
         int inverse = 1;
         int factor = -1;
         float maxSpeedX = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX();
         float maxSpeedY = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY();
-        if (realDif >= 90)
+        if (realDif > 90)
         {
             inverse = 1;
             if (probeDif > 90)
             {
+                Debug.Log("L, >");
                 plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * (realDif - 180) / (tolerance  * maxSpeedX));
             }
             else
             {
+                Debug.Log("L, <");
                 plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * (realDif - 180) / (tolerance * maxSpeedX));
             }
         }
@@ -178,17 +185,22 @@ public class AI : MonoBehaviour
             inverse = -1;
             if (probeDif > 90)
             {
+                Debug.Log("T, >");
                 plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * realDif / (tolerance * maxSpeedX));
             }
             else
             {
+                Debug.Log("T, <");
                 plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * realDif / (tolerance * maxSpeedX));
             }
         }
-        if (inAim > Mathf.Min(new float[] { 90 - realDif, realDif }))
-            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(inverse * inAim / (tolerance * maxSpeedX));
+        /*if (inAim > Mathf.Min(new float[] { 90 - realDif, realDif }))
+        {
+            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(inverse * 20 / (tolerance * maxSpeedY));
+        }*/
+        if(realDif < 80 || realDif > 100)
+            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(inverse * inAim / (tolerance * maxSpeedY));
 
-        
         return inAim;
 
     }
@@ -199,10 +211,10 @@ public class AI : MonoBehaviour
         if (Vector3.Distance(plane.getIdentity().transform.position, tail) > 20)
         {
             plane.getIdentity().GetComponent<PlaneBehavior>().setForwardV(plane.getIdentity().GetComponent<PlaneBehavior>().getMaxForwardV());
-            flyTowards(tail, plane, 2);
+            flyTowards(tail, plane, 1);
         } else
         {
-            float inAim = flyTowards(plane.getTarget().transform.position, plane, 10);
+            float inAim = flyTowards(plane.getTarget().transform.position, plane, 1);
             if (inAim < 5) {
                 plane.getIdentity().GetComponent<PlaneBehavior>().setForwardV(Mathf.Min(plane.getIdentity().GetComponent<PlaneBehavior>().getMaxForwardV(), Mathf.Max(plane.getIdentity().GetComponent<PlaneBehavior>().getMaxForwardV() / 2, plane.getTarget().GetComponent<PlaneBehavior>().getForwardV())));
             } else
