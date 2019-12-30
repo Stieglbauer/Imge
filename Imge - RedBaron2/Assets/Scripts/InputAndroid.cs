@@ -29,8 +29,8 @@ public class InputAndroid : MonoBehaviour
 
 
         Vector3 acc = LowPassFilterAccelerometer();
-        this.gameObject.GetComponent<PlaneBehavior>().setSpeedY(acc.x);
-        this.gameObject.GetComponent<PlaneBehavior>().setSpeedX(acc.y);
+        this.gameObject.GetComponent<PlaneBehavior>().setSpeedY(acc.y);
+        this.gameObject.GetComponent<PlaneBehavior>().setSpeedX(acc.x);
     }
 
     public void setShooting()
