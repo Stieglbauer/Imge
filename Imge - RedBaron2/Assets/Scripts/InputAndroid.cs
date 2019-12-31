@@ -41,6 +41,8 @@ public class InputAndroid : MonoBehaviour
     private Vector3 LowPassFilterAccelerometer()
     {
         lowPassValue = Vector3.Lerp(lowPassValue, getAverage(), 0.1f);
+        // Y-0-Punkt auf Neigungswinkel 3% in Y-Richtung legen
+        lowPassValue.y = (lowPassValue.y + 0.03f);
         return lowPassValue;
     }
 
