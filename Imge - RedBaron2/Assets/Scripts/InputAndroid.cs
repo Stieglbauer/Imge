@@ -24,13 +24,22 @@ public class InputAndroid : MonoBehaviour
     void Update()
     {
         //handle here wether player is shooting or not
-        shooting = true;
+        //shooting = true;
         setShooting();
-
 
         Vector3 acc = LowPassFilterAccelerometer();
         this.gameObject.GetComponent<PlaneBehavior>().setSpeedY(acc.y);
         this.gameObject.GetComponent<PlaneBehavior>().setSpeedX(acc.x);
+    }
+
+    public void StartShooting()
+    {
+        shooting = true;
+    }
+
+    public void StopShooting()
+    {
+        shooting = false;
     }
 
     public void setShooting()
