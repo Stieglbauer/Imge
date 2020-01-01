@@ -112,8 +112,8 @@ public class PlaneBehavior : MonoBehaviour
             this.gameObject.transform.rotation = Quaternion.Lerp(this.gameObject.transform.rotation, Quaternion.LookRotation(Vector3.down, this.gameObject.transform.rotation * Vector3.forward), 0.005f);
                 
                 y = 0;
-            if(crashRot < 4 / agilityX)
-                crashRot += 0.01f;
+            if(crashRot < 400 / agilityX)
+                crashRot += 0.03f;
             x = crashRot;
         }
         this.gameObject.transform.Rotate(new Vector3(y*agilityY*Time.deltaTime, 0, -x*agilityX*Time.deltaTime), Space.Self);
@@ -145,7 +145,7 @@ public class PlaneBehavior : MonoBehaviour
                 GameObject hullInstance = Instantiate(hull, this.gameObject.transform.position + this.gameObject.transform.rotation * new Vector3(0, hull.transform.position.y, hull.transform.position.z), this.gameObject.transform.rotation);
                 hullInstance.transform.Translate(new Vector3(hull.transform.position.x * mg, 0, 0));
                 //hullInstance.transform.Rotate(new Vector3(0, 90, 0), Space.Self);
-                hullInstance.GetComponent<fallDown>().SetSideSpeed(this.gameObject.transform.rotation * Vector3.right * mg * 0.5f);
+                hullInstance.GetComponent<fallDown>().SetSideSpeed(this.gameObject.transform.rotation * (Vector3.right * mg * 8 + Vector3.forward * speed));
                 Instantiate(sound, this.gameObject.transform);
                 GameObject projectileInstance = Instantiate(projectile, this.gameObject.transform.position + this.gameObject.transform.rotation * new Vector3(0, projectile.transform.position.y, projectile.transform.position.z), this.gameObject.transform.rotation);
                 projectileInstance.transform.Translate(projectile.transform.position.x * mg, 0, 0, Space.Self);

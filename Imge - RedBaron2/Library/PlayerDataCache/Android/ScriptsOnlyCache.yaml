@@ -619,4 +619,4 @@ ScriptsOnlyBuild:
   platform: 13
   scenePathNames:
   - Assets/Scenes/Test.unity
-  playerPath: C:/Users/Huber/Documents/Studium/3. Semester/ImGe/Uebung/Red Baron.apk
+  playerPath: F:/Felix/game.apk

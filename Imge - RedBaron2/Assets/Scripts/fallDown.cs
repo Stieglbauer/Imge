@@ -16,11 +16,11 @@ public class fallDown : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void FixedUpdate() {
+	void Update() {
         fallSpeed += increase;
-        sideSpeed *= 0.65f;
+        //sideSpeed *= 0.65f;
         transform.Rotate(rot);
-        transform.Translate(Vector3.down*fallSpeed + sideSpeed, Space.World);
+        transform.Translate((Vector3.down*fallSpeed + sideSpeed)*Time.deltaTime, Space.World);
 	}
 
     public void SetSideSpeed(Vector3 sideSpeed)

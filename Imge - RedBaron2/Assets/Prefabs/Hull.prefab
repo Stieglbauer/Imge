@@ -105,5 +105,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9db04671e828c3b41916ba5b849e8946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  increase: 0.01
+  increase: 0.5
   rand: 2
