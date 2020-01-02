@@ -45,6 +45,7 @@ public class PlaneBehavior : MonoBehaviour
 
     private GameObject diveMid;
     private GameObject diveBegin;
+    private int counter;
 
     // Start is called before the first frame update
     void Start()
@@ -92,6 +93,12 @@ public class PlaneBehavior : MonoBehaviour
         //handle steering
         if (crash)
         {
+            // to stop vibrating after crash
+            counter++;
+            if(counter >= 1000)
+            {
+                Vibration.Cancel();
+            }
             if (diveSound != 0.0f) {
                 diveSound -= Time.deltaTime;
                 if(diveSound < 0.0f)
@@ -190,7 +197,12 @@ public class PlaneBehavior : MonoBehaviour
     }
 
     public void reduceHealth()
-    {
+    {   
+        // Hit-Vibration
+        if(this.gameObject.tag.Equals("Player"))
+        {
+            Vibration.Vibrate(400);
+        }
         health--;
         if(health == maxHealth/2)
         {
@@ -198,7 +210,15 @@ public class PlaneBehavior : MonoBehaviour
         }
         if(health <= 0 && !crash)
         {
-            if (this.gameObject.tag == "Plane")
+            // Crash-Vibration
+            if(this.gameObject.tag.Equals("Player"))
+            {
+                long[] pattern = new long[] { 0, 400, 400, 400, 400};
+                Vibration.Vibrate(pattern, 1);
+                counter = 0;
+            }
+
+            if (this.gameObject.tag.Equals("Plane"))
             {
                 this.gameObject.AddComponent<DestroyYourself>();
                 this.gameObject.GetComponent<DestroyYourself>().setTime(20);
