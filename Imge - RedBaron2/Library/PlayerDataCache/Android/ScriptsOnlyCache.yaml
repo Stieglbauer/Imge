@@ -78,33 +78,33 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9866}
     - Class: 114
-      Script: {instanceID: 10234}
-    - Class: 114
-      Script: {instanceID: 10356}
+      Script: {instanceID: 10236}
     - Class: 114
       Script: {instanceID: 10358}
     - Class: 114
-      Script: {instanceID: 10422}
+      Script: {instanceID: 10360}
     - Class: 114
-      Script: {instanceID: 10580}
+      Script: {instanceID: 10424}
     - Class: 114
-      Script: {instanceID: 10810}
+      Script: {instanceID: 10582}
     - Class: 114
-      Script: {instanceID: 10846}
+      Script: {instanceID: 10812}
     - Class: 114
-      Script: {instanceID: 11024}
+      Script: {instanceID: 10848}
     - Class: 114
-      Script: {instanceID: 11066}
+      Script: {instanceID: 11026}
     - Class: 114
-      Script: {instanceID: 11098}
+      Script: {instanceID: 11068}
     - Class: 114
-      Script: {instanceID: 11120}
+      Script: {instanceID: 11100}
     - Class: 114
-      Script: {instanceID: 11166}
+      Script: {instanceID: 11122}
     - Class: 114
-      Script: {instanceID: 11340}
+      Script: {instanceID: 11168}
     - Class: 114
-      Script: {instanceID: 11372}
+      Script: {instanceID: 11342}
+    - Class: 114
+      Script: {instanceID: 11374}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -619,4 +619,4 @@ ScriptsOnlyBuild:
   platform: 13
   scenePathNames:
   - Assets/Scenes/Test.unity
-  playerPath: F:/Felix/game.apk
+  playerPath: C:/Users/Huber/Documents/Studium/3. Semester/ImGe/Uebung/Red Baron.apk
