@@ -230,7 +230,18 @@ public class PlaneBehavior : MonoBehaviour
 
     public void setForwardV(float v)
     {
-        this.speed = v;
+
+        if (this.gameObject.tag.Equals("Player"))
+        {
+            if (v >= (0.5 * maxSpeed) && v <= maxSpeed)
+            {
+                this.speed = v;
+            }
+        }
+        else
+        {
+            this.speed = v;
+        }
     }
 
     public float getForwardV()

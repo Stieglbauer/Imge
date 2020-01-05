@@ -78,11 +78,11 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9866}
     - Class: 114
-      Script: {instanceID: 10236}
+      Script: {instanceID: 10234}
+    - Class: 114
+      Script: {instanceID: 10356}
     - Class: 114
       Script: {instanceID: 10358}
-    - Class: 114
-      Script: {instanceID: 10360}
     - Class: 114
       Script: {instanceID: 10424}
     - Class: 114
@@ -516,7 +516,7 @@ ScriptsOnlyBuild:
     className: MarkerTrack
   - hash:
       serializedVersion: 2
-      Hash: a319c550a813f33d4f071383ebd733f6
+      Hash: 3fcfd9d079dcc838f2dc7ea5b0b859ff
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerBehavior
