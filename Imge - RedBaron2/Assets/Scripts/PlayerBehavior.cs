@@ -26,7 +26,7 @@ public class PlayerBehavior : MonoBehaviour
     void Update()
     {
 
-        //Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
+        Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
         text.GetComponent<Text>().text = "" + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
 
 

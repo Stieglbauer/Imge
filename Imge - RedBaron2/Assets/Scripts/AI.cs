@@ -91,6 +91,7 @@ public class AI : MonoBehaviour
             fighters[i].getIdentity().GetComponent<PlaneBehavior>().setShooting(true);
             Stance stance = analyseSituation(fighters[i]);
             executeStance(stance, fighters[i]);
+            fighters[i].setActive(fighters[i].getIdentity().GetComponent<PlaneBehavior>().getHealth() > 0);
         }
     }
 
