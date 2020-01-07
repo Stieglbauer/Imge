@@ -13,6 +13,8 @@ public class InputAndroid : MonoBehaviour
 
     private Vector3 lowPassValue = Vector3.zero;
 
+    private float scaleSpeed = 0.1f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,13 +25,73 @@ public class InputAndroid : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //handle here wether player is shooting or not
-        //shooting = true;
+        // handle here wether player is shooting or not
         setShooting();
 
         Vector3 acc = LowPassFilterAccelerometer();
         this.gameObject.GetComponent<PlaneBehavior>().setSpeedY(acc.y);
         this.gameObject.GetComponent<PlaneBehavior>().setSpeedX(acc.x);
+
+        HandleTouches();
+    }
+
+    public void HandleTouches()
+    {
+        // acceleration handling for player-acceleration
+        if (Input.touchCount >= 2)
+        {
+            if (Input.touchCount == 3)
+            {
+                // 3 touches
+                Touch touchZero = Input.GetTouch(0);
+                Touch touchOne = Input.GetTouch(1);
+                Touch touchTwo = Input.GetTouch(2);
+
+                if (touchZero.position.x >= touchOne.position.x && touchZero.position.x >= touchTwo.position.x)
+                {
+                    HelperHandleTouches(touchOne, touchTwo);
+                }else if(touchOne.position.x >= touchZero.position.x && touchOne.position.x >= touchTwo.position.x)
+                {
+                    HelperHandleTouches(touchZero, touchTwo);
+                }
+                else
+                {
+                    HelperHandleTouches(touchOne, touchZero);
+                }
+            }
+            else
+            {
+                // 2 touches
+                Touch touchZero = Input.GetTouch(0);
+                Touch touchOne = Input.GetTouch(1);
+                HelperHandleTouches(touchZero, touchOne);
+            }
+        }
+    }
+
+    private void HelperHandleTouches(Touch touchZero, Touch touchOne)
+    {
+        // Get the position in the previous frame of each touch.
+        Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+        // Get the magnitude of the vector (the distance) between the touches in each frame.
+        float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+        float touchDeltaMag = (touchZero.position - touchOne.position).magnitude;
+
+        // Get the difference in the distances between each frame.
+        float deltaMagnitude = touchDeltaMag - prevTouchDeltaMag;
+        float result = Mathf.Round(this.gameObject.GetComponent<PlaneBehavior>().getForwardV() + deltaMagnitude * scaleSpeed);
+        if (result < (this.gameObject.GetComponent<PlaneBehavior>().getMaxForwardV() / 2.0))
+        {
+            result = (float) (this.gameObject.GetComponent<PlaneBehavior>().getMaxForwardV() / 2.0);
+        }
+        else if (result > this.gameObject.GetComponent<PlaneBehavior>().getMaxForwardV())
+        {
+            result = (float) this.gameObject.GetComponent<PlaneBehavior>().getMaxForwardV();
+        }
+
+            this.gameObject.GetComponent<PlaneBehavior>().setForwardV(result);
     }
 
     public void StartShooting()

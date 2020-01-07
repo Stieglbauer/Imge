@@ -10,7 +10,8 @@ public class PlayerBehavior : MonoBehaviour
     private bool shooting = false;
     [SerializeField]
     private Animator prop;
-    public GameObject text;
+    public GameObject health;
+    public GameObject speed;
 
     public GameObject marker;
 
@@ -26,9 +27,9 @@ public class PlayerBehavior : MonoBehaviour
     void Update()
     {
 
-        Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
-        text.GetComponent<Text>().text = "" + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
-
+        //Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
+        health.GetComponent<Text>().text = "Health: " + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
+        speed.GetComponent<Text>().text = "Speed: " + this.gameObject.GetComponent<PlaneBehavior>().getForwardV();
 
 
         /*float shaking = 0.03f;

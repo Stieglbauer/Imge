@@ -37,7 +37,6 @@ public class InputPC : MonoBehaviour
         {
             this.gameObject.GetComponent<PlaneBehavior>().setForwardV(this.gameObject.GetComponent<PlaneBehavior>().getForwardV() - 1);
         }
-        
 
 
 
