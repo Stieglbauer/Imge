@@ -9,6 +9,7 @@ public class InputPC : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Destroy(GameObject.Find("Button"));
     }
 
     // Update is called once per frame

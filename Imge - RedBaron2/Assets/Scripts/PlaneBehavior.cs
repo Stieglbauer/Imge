@@ -46,6 +46,8 @@ public class PlaneBehavior : MonoBehaviour
     private GameObject diveMid;
     private GameObject diveBegin;
     private int counter;
+    private float up = 0;
+    private float left = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -68,11 +70,11 @@ public class PlaneBehavior : MonoBehaviour
             this.health = referencez.GetComponent<PrefabRefs>().getGeneralHealth();
         }
         if (agilityX == 0) { 
-            this.agilityX = 0.5f;
+            //this.agilityX = 30f;
         }
         if(agilityY == 0)
         {
-            this.agilityY = 0.5f;
+            //this.agilityY = 30f;
         }
         maxHealth = health;
         coneFlash = referencez.GetComponent<PrefabRefs>().getConeFlash();
@@ -86,10 +88,10 @@ public class PlaneBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(this.gameObject.tag.Equals("Plane"))
-        {
-            //this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 0);
-        }
+        //safe steering directions
+        up = y * agilityY;
+        left = x * agilityX;
+
         //handle steering
         if (crash)
         {
@@ -116,14 +118,14 @@ public class PlaneBehavior : MonoBehaviour
             }*/
             //Quaternion rot = Quaternion.LookRotation(Vector3.down, this.gameObject.transform.rotation * Vector3.up /*Vector3.left*/ /*Vector3.forward*/); //this.gameObject.transform.rotation, new Quaternion(0, 0, -0.7f, 0.7f), 0.005f);
             //this.gameObject.transform.rotation = Quaternion.Lerp(this.gameObject.transform.rotation, new Quaternion(rot.y, rot.z, rot.x, rot.w), 0.1f);
-            this.gameObject.transform.rotation = Quaternion.Lerp(this.gameObject.transform.rotation, Quaternion.LookRotation(Vector3.down, this.gameObject.transform.rotation * Vector3.forward), 0.005f);
+            this.gameObject.transform.rotation  = Quaternion.Lerp(this.gameObject.transform.rotation, Quaternion.LookRotation(Vector3.down, this.gameObject.transform.rotation * Vector3.forward), 0.005f);
                 
                 y = 0;
             if(crashRot < 400 / agilityX)
                 crashRot += 0.03f;
             x = crashRot;
         }
-        this.gameObject.transform.Rotate(new Vector3(y*agilityY*Time.deltaTime, 0, -x*agilityX*Time.deltaTime), Space.Self);
+        this.gameObject.transform.Rotate(new Vector3(y * agilityY * Time.deltaTime, 0, -x * agilityX * Time.deltaTime), Space.Self);
 
         x = 0;
         y = 0;
@@ -132,7 +134,7 @@ public class PlaneBehavior : MonoBehaviour
 
 
         //move Plane forward
-        this.gameObject.transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
+        //this.gameObject.transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
 
 
         //handle shooting
@@ -267,5 +269,15 @@ public class PlaneBehavior : MonoBehaviour
     public float getAgilityY()
     {
         return this.agilityY;
+    }
+
+    public float getLeft()
+    {
+        return this.left;
+    }
+
+    public float getUp()
+    {
+        return this.up;
     }
 }

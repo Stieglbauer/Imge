@@ -6,6 +6,7 @@ using UnityEngine.XR.WSA;
 
 public class PlayerBehavior : MonoBehaviour
 {
+
     private GameObject camera;
     private bool shooting = false;
     [SerializeField]
@@ -14,6 +15,11 @@ public class PlayerBehavior : MonoBehaviour
     public GameObject speed;
 
     public GameObject marker;
+
+    [SerializeField]
+    private Material mg_color;
+
+    private int color = 0;
 
     private Vector3 lowPassValue = Vector3.zero;
     // Start is called before the first frame update
@@ -26,7 +32,7 @@ public class PlayerBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        mg_color.SetColor("Tint", new Color(mg_color.GetColor("_Color").r, mg_color.GetColor("_Color").g, mg_color.GetColor("_Color").b, color));
         //Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
         health.GetComponent<Text>().text = "Health: " + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
         speed.GetComponent<Text>().text = "Speed: " + this.gameObject.GetComponent<PlaneBehavior>().getForwardV();

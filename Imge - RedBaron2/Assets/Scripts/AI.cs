@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
+    private int count = 0;
     [SerializeField]
     private Texture good;
     private Fighter[] fighters;
@@ -38,7 +39,7 @@ public class AI : MonoBehaviour
             this.active = true;
         }
 
-        public bool getActive()
+        public bool isActive()
         {
             return active;
         }
@@ -84,14 +85,36 @@ public class AI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for(int i=1; i<fighters.Length; i++)
+        count++;
+        /*if(count == 10)
         {
-            if (!fighters[i].getActive()) continue;
+
+            Transform t = testDummy1.transform;
+            for (int i = -10; i < 10; i++)
+            {
+                for (int j = -10; j < 10; j++)
+                {
+                    for (int k = -10; k < 10; k++)
+                    {
+                        t.position = new Vector3(i * 10, j * 10, k * 10) + fighters[0].getIdentity().transform.position;
+                        GameObject o = Instantiate(testDummy1, t.position, t.rotation);
+                        fighters[0].setTarget(o);
+                        if (!targetInDeadSpot(fighters[0])) Destroy(o);
+                        else
+                        {
+                            //o.AddComponent<DestroyYourself>().setTime(0.00001f);
+                        }
+                    }
+                }
+            }
+        }*/
+        for (int i=1; i<fighters.Length; i++)
+        {
+            if (!fighters[i].isActive()) continue;
             fighters[i].setTarget(findTarget(fighters[i]));
             fighters[i].getIdentity().GetComponent<PlaneBehavior>().setShooting(true);
             Stance stance = analyseSituation(fighters[i]);
             executeStance(stance, fighters[i]);
-            fighters[i].setActive(fighters[i].getIdentity().GetComponent<PlaneBehavior>().getHealth() > 0);
         }
     }
 
@@ -153,32 +176,37 @@ public class AI : MonoBehaviour
     private float flyTowards(Vector3 position, Fighter plane, float tolerance)
     {
         Quaternion direction = Quaternion.LookRotation(position - plane.getIdentity().transform.position, Vector3.forward);
+        // direction = angle from the plane's position towards the target's position
         float inAim = Quaternion.Angle(direction, Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, Vector3.forward));
+        // inAim = difference (degrees) between the angle the plane is aiming at and the direction towards the target -> 0 <= inAim <= 180
 
         Quaternion testProbe = plane.getIdentity().transform.rotation * Quaternion.AngleAxis(90, Vector3.forward);
         Quaternion desiredRotation = Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, direction * Vector3.forward);
+        // desiredRotation = rotation of the plane from where y-movement leads to aiming at the target
 
-        testDummy1.transform.rotation = desiredRotation;
-        testDummy2.transform.rotation = direction;
 
         float realDif = Quaternion.Angle(plane.getIdentity().transform.rotation, desiredRotation);
+        // realDif = difference (degrees) between current rotation and the desiredRotation -> 0 <= realDif <= 180
         float probeDif = Quaternion.Angle(testProbe, desiredRotation);
         int inverse = 1;
         int factor = -1;
         float maxSpeedX = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX();
         float maxSpeedY = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY();
+        float steeringX = 0;
         if (realDif > 90)
         {
             inverse = 1;
             if (probeDif > 90)
             {
-                Debug.Log("L, >");
-                plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * (realDif - 180) / (tolerance  * maxSpeedX));
+                //Debug.Log("L, >");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = -factor * (realDif -180) / ((tolerance * maxSpeedX) == 0? 1 : (tolerance * maxSpeedX));
             }
             else
             {
-                Debug.Log("L, <");
-                plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * (realDif - 180) / (tolerance * maxSpeedX));
+                //Debug.Log("L, <");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
             }
         }
         else
@@ -186,30 +214,96 @@ public class AI : MonoBehaviour
             inverse = -1;
             if (probeDif > 90)
             {
-                Debug.Log("T, >");
-                plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * realDif / (tolerance * maxSpeedX));
+                //Debug.Log("T, >");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = -factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
             }
             else
             {
-                Debug.Log("T, <");
-                plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * realDif / (tolerance * maxSpeedX));
+                //Debug.Log("T, <");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
             }
         }
-        /*if (inAim > Mathf.Min(new float[] { 90 - realDif, realDif }))
+        //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(Mathf.Min(1, Mathf.Max(0, 80 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * inAim / ((tolerance * maxSpeedY)==0?1: (tolerance * maxSpeedY)));
+        float steeringY = Mathf.Min(1, Mathf.Max(-1, ((90 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * inAim / ((tolerance * maxSpeedY) == 0 ? 1 : (tolerance * maxSpeedY))));
+
+        Debug.Log(steeringY +
+            " : " + targetInDeadSpot(plane, Mathf.Max(-1, Mathf.Min(1, steeringX))*plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX(), Mathf.Max(-1, Mathf.Min(1, steeringY)) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY()) +
+            " : " + Mathf.Min(1, Mathf.Max(-1, steeringX)) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX() +
+            " : " + steeringY * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY() +
+            " : " + plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV() +
+            " : " +getDeadSpotRadius(steeringX, steeringY, plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV(), getDeadSpotAngle(steeringX, steeringY)));
+
+        /*plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(steeringX);
+        if(!targetInDeadSpot(plane, steeringX, steeringY))
         {
-            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(inverse * 20 / (tolerance * maxSpeedY));
+            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(steeringY);
         }*/
-        if(realDif < 80 || realDif > 100)
-            plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(inverse * inAim / (tolerance * maxSpeedY));
 
         return inAim;
 
+    }
+    private bool targetInDeadSpot(Fighter plane, float x, float y)
+    {
+        if (y == 0)
+        {
+            Debug.Log("y == 0");
+            return false;
+        }
+        Vector3 targetPos = new Vector3(plane.getTarget().transform.position.x, plane.getTarget().transform.position.y, plane.getTarget().transform.position.z);
+        targetPos -= plane.getIdentity().transform.position;
+        targetPos = Quaternion.Inverse(plane.getIdentity().transform.rotation) * targetPos;
+        testDummy1.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        float angle = getDeadSpotAngle(x, y);
+        targetPos = Quaternion.EulerAngles(0, (x * y > 0 ? 1 : -1) * (0.5f * Mathf.PI - angle), 0) * targetPos;
+        testDummy2.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        float radius = getDeadSpotRadius(x, y, plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV(), angle);
+        targetPos += new Vector3(0, (y > 0 ? -1 : 1) * radius, 0);
+        testDummy3.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        return targetPos.x * targetPos.x + targetPos.y * targetPos.y <= radius * radius * 1.2f;
+    }
+
+    private bool targetInDeadSpot(Fighter plane)
+    {
+        float y = plane.getIdentity().GetComponent<PlaneBehavior>().getUp();
+        y = (y > 0 ? -1 : 1) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY();
+        float x = plane.getIdentity().GetComponent<PlaneBehavior>().getLeft();
+        x = (x > 0 ? 1 : -1) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX();
+        if (y == 0)
+        {
+            //return false;
+        }
+        Vector3 targetPos = new Vector3(plane.getTarget().transform.position.x, plane.getTarget().transform.position.y, plane.getTarget().transform.position.z);
+        targetPos -= plane.getIdentity().transform.position;
+        targetPos = Quaternion.Inverse(plane.getIdentity().transform.rotation) * targetPos;
+        float angle = getDeadSpotAngle(x, y);
+        targetPos = Quaternion.EulerAngles(0, (x * y > 0 ? 1 : -1) * (0.5f*Mathf.PI - angle), 0) * targetPos;
+        float radius = getDeadSpotRadius(x, y, plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV(), angle);
+        targetPos += new Vector3(0, (y > 0 ? -1 : 1) * radius, 0);
+        return targetPos.x * targetPos.x + targetPos.y * targetPos.y <= radius * radius * 1.2f;
+
+
+        /*float y = 80;
+        float x = 80;
+        Vector3 targetPos = new Vector3(plane.getTarget().transform.position.x, plane.getTarget().transform.position.y, plane.getTarget().transform.position.z);
+        targetPos -= plane.getIdentity().transform.position;
+        targetPos = Quaternion.Inverse(plane.getIdentity().transform.rotation) * targetPos;
+        testDummy1.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        float angle = getDeadSpotAngle(x, y);
+        targetPos = Quaternion.EulerAngles(0, (x * y > 0 ? 1 : -1) * (0.5f * Mathf.PI - angle), 0) * targetPos;
+        //Debug.Log(angle * 180 / Mathf.PI);
+        testDummy2.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        float radius = getDeadSpotRadius(x, y, 60, angle);
+        targetPos += new Vector3(0, (y > 0 ? -1 : 1) * radius, 0);
+        testDummy3.transform.position = new Vector3(targetPos.x, targetPos.y, targetPos.z);
+        return targetPos.x * targetPos.x + targetPos.y * targetPos.y <= radius * radius * 1.2f;*/
     }
 
     private void tailoring(Fighter plane)
     {
         Vector3 tail = plane.getTarget().transform.position + 60 * (plane.getTarget().transform.rotation * Vector3.back);
-        if (Vector3.Distance(plane.getIdentity().transform.position, tail) > 20)
+        if (((Vector3.Distance(plane.getIdentity().transform.position, tail) > 20 && Vector3.Distance(plane.getIdentity().transform.position, plane.getTarget().transform.position) > 60) || Vector3.Distance(plane.getIdentity().transform.position, plane.getTarget().transform.position) < 40))
         {
             plane.getIdentity().GetComponent<PlaneBehavior>().setForwardV(plane.getIdentity().GetComponent<PlaneBehavior>().getMaxForwardV());
             flyTowards(tail, plane, 1);
@@ -261,6 +355,31 @@ public class AI : MonoBehaviour
     {
         //need2rework
         return fighters[0].getIdentity();
+    }
+
+    public void setInactive(GameObject plane)
+    {
+        for(int i=0; i<fighters.Length; i++)
+        {
+            if (fighters[i].getIdentity() == plane)
+            {
+                fighters[i].setActive(false);
+                return;
+            }
+        }
+    }
+
+    public float getDeadSpotRadius(float speedX, float speedY, float speedForward, float deadSpotAngle)
+    {
+        //deadSpotAngle has to be in radians!
+        return 360.0f / Mathf.Sqrt(speedX * speedX + speedY * speedY) * speedForward * Mathf.Cos(deadSpotAngle) / (2*Mathf.PI);
+    }
+
+    public float getDeadSpotAngle(float speedX, float speedY)
+    {
+        //in radians
+        //returns 0 if plane is performing looping
+        return Mathf.Min(Vector3.Angle(new Vector3(speedX, speedY, 0), new Vector3(0, 1, 0)), Vector3.Angle(new Vector3(speedX, speedY, 0), new Vector3(0, -1, 0)))/180*Mathf.PI;
     }
 
     public void oldAI(GameObject plane)

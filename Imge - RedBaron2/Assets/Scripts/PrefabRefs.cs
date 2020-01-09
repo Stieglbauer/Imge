@@ -26,6 +26,8 @@ public class PrefabRefs : MonoBehaviour
     private GameObject diveBegin;
     [SerializeField]
     private GameObject diveMid;
+    [SerializeField]
+    private GameObject ai;
 
     // Start is called before the first frame update
     public GameObject getConeFlash()
@@ -73,5 +75,10 @@ public class PrefabRefs : MonoBehaviour
     public GameObject getDiveMid()
     {
         return this.diveMid;
+    }
+
+    public GameObject getAI()
+    {
+        return this.ai;
     }
 }

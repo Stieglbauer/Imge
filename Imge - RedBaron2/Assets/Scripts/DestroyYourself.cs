@@ -21,6 +21,10 @@ public class DestroyYourself : MonoBehaviour
             seconds -= 1 * Time.deltaTime;
         } else
         {
+            if (this.gameObject.tag.Equals("Plane"))
+            {
+                GameObject.Find("AI").GetComponent<AI>().setInactive(this.gameObject);
+            }
             Destroy(this.gameObject);
         }
     }
