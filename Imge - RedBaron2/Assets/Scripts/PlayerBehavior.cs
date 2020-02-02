@@ -14,25 +14,22 @@ public class PlayerBehavior : MonoBehaviour
     public GameObject health;
     public GameObject speed;
 
+    //delete this
     public GameObject marker;
 
-    [SerializeField]
-    private Material mg_color;
-
-    private int color = 0;
+    private GameObject mg;
 
     private Vector3 lowPassValue = Vector3.zero;
     // Start is called before the first frame update
     void Start()
     {
         camera = GameObject.Find("Main Camera");
-
+        mg = GameObject.Find("PlayerMG");
     }
 
     // Update is called once per frame
     void Update()
     {
-        mg_color.SetColor("Tint", new Color(mg_color.GetColor("_Color").r, mg_color.GetColor("_Color").g, mg_color.GetColor("_Color").b, color));
         //Instantiate(marker, this.gameObject.transform.position, new Quaternion(0, 0, 0, 0));
         health.GetComponent<Text>().text = "Health: " + this.gameObject.GetComponent<PlaneBehavior>().getHealth();
         speed.GetComponent<Text>().text = "Speed: " + this.gameObject.GetComponent<PlaneBehavior>().getForwardV();
@@ -47,4 +44,11 @@ public class PlayerBehavior : MonoBehaviour
         //camera.transform.position = Vector3.MoveTowards(camera.transform.position, new Vector3(0.8f, 2.13f, 0), 0.01f);
 
     }
+
+
+    public void setGlowing(float f)
+    {
+        mg.GetComponent<Color_setter>().setGlowing(f);
+    }
+
 }

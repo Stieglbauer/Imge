@@ -21,7 +21,7 @@ public class DestroyYourself : MonoBehaviour
             seconds -= 1 * Time.deltaTime;
         } else
         {
-            if (this.gameObject.tag.Equals("Plane"))
+            if (this.gameObject.GetComponent<PlayerBehavior>() == null && this.gameObject.GetComponent<PlaneBehavior>() != null)
             {
                 GameObject.Find("AI").GetComponent<AI>().setInactive(this.gameObject);
             }

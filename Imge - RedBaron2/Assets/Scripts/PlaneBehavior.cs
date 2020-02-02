@@ -17,6 +17,8 @@ public class PlaneBehavior : MonoBehaviour
     private int maxHealth;
     private bool crash = false;
     private bool lockOnTarget = false;
+    private float heat = 0;
+    private bool overheated = false;
     public void setLock(bool val)
     {
         this.lockOnTarget = val;
@@ -134,7 +136,7 @@ public class PlaneBehavior : MonoBehaviour
 
 
         //move Plane forward
-        //this.gameObject.transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
+        this.gameObject.transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
 
 
         //handle shooting
@@ -142,8 +144,14 @@ public class PlaneBehavior : MonoBehaviour
         cooldown+=Random.Range(0.9f,1.1f) * Time.deltaTime * 80;
         if (shooting)
         {
-            if(cooldown >= maxCooldown )
+            if(cooldown >= maxCooldown && !overheated)
             {
+                heat += 0.05f;
+                if (heat > 2)
+                {
+                    overheated = true;
+                }
+
                 cooldown %= maxCooldown;
                 mg *= -1;
                 GameObject coneFlashInstance = Instantiate(coneFlash, this.gameObject.transform.position + this.gameObject.transform.rotation * new Vector3(0, coneFlash.transform.position.y, coneFlash.transform.position.z), this.gameObject.transform.rotation,  this.gameObject.transform);
@@ -158,7 +166,7 @@ public class PlaneBehavior : MonoBehaviour
                 Instantiate(sound, this.gameObject.transform);
                 GameObject projectileInstance = Instantiate(projectile, this.gameObject.transform.position + this.gameObject.transform.rotation * new Vector3(0, projectile.transform.position.y, projectile.transform.position.z), this.gameObject.transform.rotation);
                 projectileInstance.transform.Translate(projectile.transform.position.x * mg, 0, 0, Space.Self);
-                if (this.gameObject.tag == "Player")
+                if (this.gameObject.GetComponent<PlayerBehavior>() != null)
                 {
                     projectileInstance.transform.Rotate(new Vector3(90, 0, 0), Space.Self);
                 }
@@ -170,6 +178,19 @@ public class PlaneBehavior : MonoBehaviour
                 }
                 //projectileInstance.transform.Translate(0, 0, projectile.transform.position.z * mg, Space.Self);
             }
+        }
+
+        if(cooldown > maxCooldown)
+        {
+            if(heat > 0)
+                heat -= 0.01f;
+            if (heat < 0.5f)
+                overheated = false;
+        }
+
+        if(this.gameObject.GetComponent<PlayerBehavior>() != null)
+        {
+            this.gameObject.GetComponent<PlayerBehavior>().setGlowing(heat);
         }
     }
 
@@ -201,7 +222,7 @@ public class PlaneBehavior : MonoBehaviour
     public void reduceHealth()
     {   
         // Hit-Vibration
-        if(this.gameObject.tag.Equals("Player"))
+        if(this.gameObject.GetComponent<PlayerBehavior>() != null)
         {
             Vibration.Vibrate(400);
         }
@@ -213,15 +234,12 @@ public class PlaneBehavior : MonoBehaviour
         if(health <= 0 && !crash)
         {
             // Crash-Vibration
-            if(this.gameObject.tag.Equals("Player"))
+            if(this.gameObject.GetComponent<PlayerBehavior>() != null)
             {
                 long[] pattern = new long[] { 0, 400, 400, 400, 400};
                 Vibration.Vibrate(pattern, 1);
                 counter = 0;
-            }
-
-            if (this.gameObject.tag.Equals("Plane"))
-            {
+            } else { 
                 this.gameObject.AddComponent<DestroyYourself>();
                 this.gameObject.GetComponent<DestroyYourself>().setTime(20);
             }
@@ -233,17 +251,16 @@ public class PlaneBehavior : MonoBehaviour
     public void setForwardV(float v)
     {
 
-        if (this.gameObject.tag.Equals("Player"))
-        {
-            if (v >= (0.5 * maxSpeed) && v <= maxSpeed)
+            if (v >= (0.5f * maxSpeed) && v <= maxSpeed)
             {
-                this.speed = v;
+                if (Mathf.Abs(this.speed - v) < 0.5 || this.gameObject.GetComponent<PlayerBehavior>() != null)
+                    this.speed = v;
+                else if (speed - v > 0)
+                    speed -= 0.5f;
+                else
+                    speed += 0.5f;
             }
-        }
-        else
-        {
-            this.speed = v;
-        }
+        
     }
 
     public float getForwardV()

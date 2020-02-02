@@ -4,19 +4,18 @@ using UnityEngine;
 
 public class Color_setter : MonoBehaviour
 {
-    float val = 0;
+    private Material m;
     // Start is called before the first frame update
     void Start()
     {
-        
+
+        m = this.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
     }
 
-    // Update is called once per frame
-    void Update()
+    public void setGlowing(float f)
     {
-        Material c = this.gameObject.GetComponent<MeshRenderer>().sharedMaterial;
-        c.color = new Color(1, 1, 1, val);
-        if (val < 2) 
-        val += 0.01f;
+        m.color = new Color(1, 1, 1, f);
     }
+
+
 }

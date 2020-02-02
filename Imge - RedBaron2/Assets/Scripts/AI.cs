@@ -9,6 +9,8 @@ public class AI : MonoBehaviour
     private Texture good;
     private Fighter[] fighters;
     public GameObject testDummy1, testDummy2, testDummy3;
+    public GameObject[] arr;
+    public GameObject player;
     private enum Stance
     {
         IDLE,
@@ -72,12 +74,12 @@ public class AI : MonoBehaviour
     void Start()
     {
         //need2rework
-        GameObject[] arr = GameObject.FindGameObjectsWithTag("Plane");
+        //GameObject[] arr = GameObject.FindGameObjectsWithTag("Plane");
         fighters = new Fighter[arr.Length+1];
-        fighters[0] = new Fighter(GameObject.Find("Player"), true);
+        fighters[0] = new Fighter(player, true);
         for(int i=0; i<arr.Length; i++)
         {
-            fighters[i+1] = new Fighter(arr[i], arr[i].GetComponent<Texture>().Equals(good));
+            fighters[i+1] = new Fighter(arr[i], false);
         }
 
     }
@@ -112,7 +114,7 @@ public class AI : MonoBehaviour
         {
             if (!fighters[i].isActive()) continue;
             fighters[i].setTarget(findTarget(fighters[i]));
-            fighters[i].getIdentity().GetComponent<PlaneBehavior>().setShooting(true);
+            //fighters[i].getIdentity().GetComponent<PlaneBehavior>().setShooting(true);
             Stance stance = analyseSituation(fighters[i]);
             executeStance(stance, fighters[i]);
         }
@@ -120,6 +122,7 @@ public class AI : MonoBehaviour
 
     private void executeStance(Stance stance, Fighter plane)
     {
+        plane.getIdentity().GetComponent<PlaneBehavior>().setShooting(allowShooting(plane));
         if (stance == Stance.TAILORING)
         {
             tailoring(plane);
@@ -170,7 +173,70 @@ public class AI : MonoBehaviour
 
     private void gainDistance(Fighter plane)
     {
+        
+    }
 
+    private float flyAwayFrom(Vector3 position, Fighter plane, float tolerance)
+    {
+        Quaternion direction = Quaternion.LookRotation(position - plane.getIdentity().transform.position, Vector3.forward);
+        // direction = angle from the plane's position towards the target's position
+        float inAim = Quaternion.Angle(direction, Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, Vector3.forward));
+        // inAim = difference (degrees) between the angle the plane is aiming at and the direction towards the target -> 0 <= inAim <= 180
+
+        Quaternion testProbe = plane.getIdentity().transform.rotation * Quaternion.AngleAxis(90, Vector3.forward);
+        Quaternion desiredRotation = Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, direction * Vector3.forward);
+        // desiredRotation = rotation of the plane from where y-movement leads to aiming at the target
+
+
+        float realDif = Quaternion.Angle(plane.getIdentity().transform.rotation, desiredRotation);
+        // realDif = difference (degrees) between current rotation and the desiredRotation -> 0 <= realDif <= 180
+        float probeDif = Quaternion.Angle(testProbe, desiredRotation);
+        int inverse = 1;
+        int factor = -1;
+        float maxSpeedX = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX();
+        float maxSpeedY = plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY();
+        float steeringX = 0;
+        if (realDif > 90)
+        {
+            inverse = 1;
+            if (probeDif > 90)
+            {
+                //Debug.Log("L, >");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = -factor * (realDif - 180) / (tolerance);
+            }
+            else
+            {
+                //Debug.Log("L, <");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = factor * (realDif - 180) / (tolerance);
+            }
+        }
+        else
+        {
+            inverse = -1;
+            if (probeDif > 90)
+            {
+                //Debug.Log("T, >");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = -factor * realDif / (tolerance);
+            }
+            else
+            {
+                //Debug.Log("T, <");
+                //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
+                steeringX = factor * realDif / (tolerance);
+            }
+        }
+        steeringX = Mathf.Min(1, Mathf.Max(-1, steeringX));
+        //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(Mathf.Min(1, Mathf.Max(0, 80 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * inAim / ((tolerance * maxSpeedY)==0?1: (tolerance * maxSpeedY)));
+        //float steeringY = Mathf.Min(1, (((90 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * (inAim/5) / (tolerance)));
+        float steeringY = (inverse * 20 * Mathf.Min(1, Mathf.Max(0, 45 - Mathf.Min(realDif, 180 - realDif)) / 45));
+
+        plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(steeringX);
+        plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(-steeringY);
+
+        return inAim;
     }
 
     private float flyTowards(Vector3 position, Fighter plane, float tolerance)
@@ -200,13 +266,13 @@ public class AI : MonoBehaviour
             {
                 //Debug.Log("L, >");
                 //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
-                steeringX = -factor * (realDif -180) / ((tolerance * maxSpeedX) == 0? 1 : (tolerance * maxSpeedX));
+                steeringX = -factor * (realDif -180) / (tolerance);
             }
             else
             {
                 //Debug.Log("L, <");
                 //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
-                steeringX = factor * (realDif - 180) / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
+                steeringX = factor * (realDif - 180) / (tolerance);
             }
         }
         else
@@ -216,30 +282,25 @@ public class AI : MonoBehaviour
             {
                 //Debug.Log("T, >");
                 //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(-factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
-                steeringX = -factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
+                steeringX = -factor * realDif / (tolerance);
             }
             else
             {
                 //Debug.Log("T, <");
                 //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX)));
-                steeringX = factor * realDif / ((tolerance * maxSpeedX) == 0 ? 1 : (tolerance * maxSpeedX));
+                steeringX = factor * realDif / (tolerance);
             }
         }
+        steeringX = Mathf.Min(1, Mathf.Max(-1, steeringX));
         //plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(Mathf.Min(1, Mathf.Max(0, 80 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * inAim / ((tolerance * maxSpeedY)==0?1: (tolerance * maxSpeedY)));
-        float steeringY = Mathf.Min(1, Mathf.Max(-1, ((90 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * inAim / ((tolerance * maxSpeedY) == 0 ? 1 : (tolerance * maxSpeedY))));
+        //float steeringY = Mathf.Min(1, (((90 - Mathf.Min(realDif, 180 - realDif)) / 90) * inverse * (inAim/5) / (tolerance)));
+        float steeringY = (inverse * 20 * Mathf.Min(1, Mathf.Max(0, 45 - Mathf.Min(realDif, 180 - realDif)) / 45));
 
-        Debug.Log(steeringY +
-            " : " + targetInDeadSpot(plane, Mathf.Max(-1, Mathf.Min(1, steeringX))*plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX(), Mathf.Max(-1, Mathf.Min(1, steeringY)) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY()) +
-            " : " + Mathf.Min(1, Mathf.Max(-1, steeringX)) * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityX() +
-            " : " + steeringY * plane.getIdentity().GetComponent<PlaneBehavior>().getAgilityY() +
-            " : " + plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV() +
-            " : " +getDeadSpotRadius(steeringX, steeringY, plane.getIdentity().GetComponent<PlaneBehavior>().getForwardV(), getDeadSpotAngle(steeringX, steeringY)));
-
-        /*plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(steeringX);
-        if(!targetInDeadSpot(plane, steeringX, steeringY))
+        plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(steeringX);
+        //if(!targetInDeadSpot(plane, steeringX, steeringY))
         {
             plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(steeringY);
-        }*/
+        }
 
         return inAim;
 
@@ -248,7 +309,6 @@ public class AI : MonoBehaviour
     {
         if (y == 0)
         {
-            Debug.Log("y == 0");
             return false;
         }
         Vector3 targetPos = new Vector3(plane.getTarget().transform.position.x, plane.getTarget().transform.position.y, plane.getTarget().transform.position.z);
@@ -321,6 +381,7 @@ public class AI : MonoBehaviour
 
     private void shaking(Fighter plane)
     {
+        plane.getIdentity().GetComponent<PlaneBehavior>().setForwardV(plane.getIdentity().GetComponent<PlaneBehavior>().getMaxForwardV());
         plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedX(1);
         plane.getIdentity().GetComponent<PlaneBehavior>().setSpeedY(0.2f);
     }
@@ -332,12 +393,13 @@ public class AI : MonoBehaviour
 
     private void dodging(Fighter plane)
     {
-
+        flyAwayFrom(plane.getTarget().transform.position, plane, 1);
     }
 
     private void engaging(Fighter plane)
     {
-
+        float inAim = flyTowards(plane.getTarget().transform.position, plane, 1);
+        //plane.getIdentity().GetComponent<PlaneBehavior>().setShooting(inAim < 15 && Vector3.Distance(plane.getIdentity().transform.position, plane.getTarget().transform.position) < 500);
     }
 
     private void idle(Fighter plane)
@@ -348,7 +410,22 @@ public class AI : MonoBehaviour
     private Stance analyseSituation(Fighter plane)
     {
 
-        return Stance.TAILORING;
+        Vector3 upDir = plane.getIdentity().transform.rotation * Vector3.up;
+        if (Quaternion.Angle(Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, upDir), Quaternion.LookRotation(plane.getTarget().transform.rotation * Vector3.forward, upDir)) > 90 && Quaternion.Angle(Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, upDir), Quaternion.LookRotation(plane.getTarget().transform.position - plane.getIdentity().transform.position, upDir)) < 90)
+        {
+            if (Vector3.Distance(plane.getTarget().transform.position, plane.getIdentity().transform.position) < 100)
+            {
+                return Stance.DODGING;
+            }
+            else
+            {
+                return Stance.ENGAGING;
+            }
+        } else
+        {
+            return Stance.TAILORING;
+        }
+
     }
 
     private GameObject findTarget(Fighter plane)
@@ -478,6 +555,25 @@ public class AI : MonoBehaviour
             Debug.Log("InAim: " + inAim);
             */
             //<< important part
+
+    }
+
+    private bool allowShooting(Fighter plane)
+    {
+        Vector3 upDir = plane.getIdentity().transform.rotation * Vector3.up;
+        Quaternion direction = Quaternion.LookRotation(plane.getTarget().transform.position - plane.getIdentity().transform.position, upDir);
+        float inAim = Quaternion.Angle(direction, Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, upDir));
+        float distance = Vector3.Distance(plane.getIdentity().transform.position, plane.getTarget().transform.position);
+        for(int i=1; i<fighters.Length; i++)
+        {
+            if (fighters[i].getIdentity() == plane.getIdentity() || !fighters[i].isActive()) continue;
+            direction = Quaternion.LookRotation(fighters[i].getIdentity().transform.position - plane.getIdentity().transform.position, upDir);
+            if (Quaternion.Angle(direction, Quaternion.LookRotation(plane.getIdentity().transform.rotation * Vector3.forward, upDir)) < 15)
+            {
+                return false;
+            }
+        }
+        return inAim < 15 && distance < 500;
 
     }
 }

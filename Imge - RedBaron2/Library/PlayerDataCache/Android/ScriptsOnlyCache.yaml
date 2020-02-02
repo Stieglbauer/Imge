@@ -2,6 +2,7 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - AI
+    - Color_setter
     - DestroyYourself
     - InputAndroid
     - InputPC
@@ -86,25 +87,27 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 10424}
     - Class: 114
-      Script: {instanceID: 10582}
+      Script: {instanceID: 10538}
     - Class: 114
-      Script: {instanceID: 10812}
+      Script: {instanceID: 10586}
     - Class: 114
-      Script: {instanceID: 10848}
+      Script: {instanceID: 10816}
     - Class: 114
-      Script: {instanceID: 11026}
+      Script: {instanceID: 10852}
     - Class: 114
-      Script: {instanceID: 11068}
+      Script: {instanceID: 11030}
     - Class: 114
-      Script: {instanceID: 11100}
+      Script: {instanceID: 11072}
     - Class: 114
-      Script: {instanceID: 11122}
+      Script: {instanceID: 11104}
     - Class: 114
-      Script: {instanceID: 11168}
+      Script: {instanceID: 11126}
     - Class: 114
-      Script: {instanceID: 11342}
+      Script: {instanceID: 11172}
     - Class: 114
-      Script: {instanceID: 11374}
+      Script: {instanceID: 11346}
+    - Class: 114
+      Script: {instanceID: 11378}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -378,10 +381,22 @@ ScriptsOnlyBuild:
     className: TMP_SpriteAnimator
   - hash:
       serializedVersion: 2
+      Hash: 48c027ddc4cbd5c7611881fb133385cb
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: dummyAI
+  - hash:
+      serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
     assemblyName: UnityEngine.TestRunner.dll
     namespaceName: UnityEngine.TestTools.TestRunner.Callbacks
     className: RemoteTestResultSender
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Color_setter
   - hash:
       serializedVersion: 2
       Hash: 4fd8bf02e3089425d3502e26c44ba31a
@@ -456,7 +471,7 @@ ScriptsOnlyBuild:
     className: ProjectileBehavior
   - hash:
       serializedVersion: 2
-      Hash: 26e3cf27d1a0a933a6195dc72231212a
+      Hash: 8c82316e3f2f83aafd1796f6cd2ca9cb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PrefabRefs
@@ -498,7 +513,7 @@ ScriptsOnlyBuild:
     className: InputAndroid
   - hash:
       serializedVersion: 2
-      Hash: dceb2636e3737c58d2c3fdaa99b79e17
+      Hash: aeb860c19b18f6c4b94220ec426c0d10
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: AI
@@ -619,4 +634,4 @@ ScriptsOnlyBuild:
   platform: 13
   scenePathNames:
   - Assets/Scenes/Test.unity
-  playerPath: C:/Users/Huber/Documents/Studium/3. Semester/ImGe/Uebung/Red Baron.apk
+  playerPath: C:/Users/Felix Stieglbauer/Documents/TUM/3_WS19-20/IMGE/BuildLvl2_Android/lvl2_android.apk
